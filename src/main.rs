@@ -6,7 +6,7 @@ mod parser;
 
 fn main() {
     parser::parse();
-    let a = parse_node::ParseNode::Operand(32);
+    let a = parse_node::Token::Operand(32);
     println!("{}", a);
     println!("Hello, world!");
 }
