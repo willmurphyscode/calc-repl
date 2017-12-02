@@ -1,6 +1,6 @@
 
 use nom;
-use parse_node::{Token,Opcode};
+use token::{Token,Opcode};
 
 //This is a super helpful example
 // https://github.com/Rydgel/monkey-rust/blob/32d6db16c6b9c99202deafa8b36175f50f6522af/lib/lexer/mod.rs
