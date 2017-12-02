@@ -1,5 +1,6 @@
 use std::fmt;
 
+#[derive(PartialEq)]
 pub enum ParseNode {
     LeftParen,
     RightParen,
@@ -7,7 +8,7 @@ pub enum ParseNode {
     Operand(isize)
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum Opcode {
     Add, Subtract, Multiply, Divide,
 }

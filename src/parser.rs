@@ -10,7 +10,16 @@ named!(left_paren<&[u8], ParseNode>,
     // you'll get a mysterious syntax error from nom macro expansions without them.
 );
 
+named!(right_paren<&[u8], ParseNode>,
+    do_parse!(tag!(")") >> (ParseNode::RightParen))
+);
+
 pub fn parse() {
     let a = left_paren(&b"("[..]);
-    println!("{:?}{}", result, a.to_result().expect("failed to parse"));
+    println!("{}", left_paren(&b"("[..]).to_result().expect("failed to parse"));
+}
+
+#[test]
+fn left_paren_parser() {
+    assert!(left_paren(&b"("[..]).to_result().expect("failed to parse left paren") == ParseNode::LeftParen);
 }
