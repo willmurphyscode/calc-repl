@@ -43,9 +43,31 @@ fn parse_string_to_operand(slice: &[u8]) -> Token {
     Token::Operand(string.parse::<isize>().unwrap())
 }
 
+named!(single_token<&[u8], Token>,
+    alt!(
+        left_paren |
+        right_paren |
+        addition_sign |
+        subtraction_sign |
+        multiplication_sign |
+        division_sign |
+        operand
+    )
+);
+
 pub fn parse() {
     let a = left_paren(&b"("[..]);
     println!("{}", left_paren(&b"("[..]).to_result().expect("failed to parse"));
+}
+
+#[test]
+fn test_single_token() {
+    assert!(single_token(&b"("[..]).to_result().expect("failed to parse token (") == Token::LeftParen);
+}
+
+#[test]
+fn test_single_numeric_token() {
+    assert!(single_token(&b"4"[..]).to_result().expect("failed to parse token (") == Token::Operand(4isize));
 }
 
 #[test]
