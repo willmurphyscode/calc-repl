@@ -2,7 +2,7 @@
 use nom;
 use token::{Token,Opcode};
 use std::num::{ParseIntError};
-use std::str::{FromStr};
+use std::str;
 
 //This is a super helpful example
 // https://github.com/Rydgel/monkey-rust/blob/32d6db16c6b9c99202deafa8b36175f50f6522af/lib/lexer/mod.rs
@@ -32,14 +32,15 @@ named!(division_sign<&[u8], Token>,
     do_parse!(tag!("/") >> (Token::Operator(Opcode::Divide)))
 );
 
-named!(operand<&str, Token>,
+named!(operand<&[u8], Token>,
     map!(nom::digit, parse_string_to_operand)
 );
 
-fn parse_string_to_operand(string: &str) -> Token {
+fn parse_string_to_operand(slice: &[u8]) -> Token {
     // I believe `unwrap()` is OK because the nom macro digit! shouldn't match anything
-    // that doesn't parse as an int. 
-    Token::Operand(isize::from_str(string).unwrap())
+    // that doesn't parse as an int.
+    let string = str::from_utf8(slice).unwrap();
+    Token::Operand(string.parse::<isize>().unwrap())
 }
 
 pub fn parse() {
@@ -75,4 +76,9 @@ fn multiplication_sign_parser() {
 #[test]
 fn division_sign_parser() {
     assert!(division_sign(&b"/"[..]).to_result().expect("failed to parse division sign") == Token::Operator(Opcode::Divide));
+}
+
+#[test]
+fn operand_parser() {
+    assert!(operand(&b"123"[..]).to_result().expect("failed to parse numeric operand") == Token::Operand(123isize));
 }
