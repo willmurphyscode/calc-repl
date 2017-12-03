@@ -1,6 +1,8 @@
 
 use nom;
 use token::{Token,Opcode};
+use std::num::{ParseIntError};
+use std::str::{FromStr};
 
 //This is a super helpful example
 // https://github.com/Rydgel/monkey-rust/blob/32d6db16c6b9c99202deafa8b36175f50f6522af/lib/lexer/mod.rs
@@ -29,6 +31,16 @@ named!(multiplication_sign<&[u8], Token>,
 named!(division_sign<&[u8], Token>,
     do_parse!(tag!("/") >> (Token::Operator(Opcode::Divide)))
 );
+
+named!(operand<&str, Token>,
+    map!(nom::digit, parse_string_to_operand)
+);
+
+fn parse_string_to_operand(string: &str) -> Token {
+    // I believe `unwrap()` is OK because the nom macro digit! shouldn't match anything
+    // that doesn't parse as an int. 
+    Token::Operand(isize::from_str(string).unwrap())
+}
 
 pub fn parse() {
     let a = left_paren(&b"("[..]);
