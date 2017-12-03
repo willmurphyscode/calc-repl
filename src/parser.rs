@@ -1,6 +1,7 @@
 
 use nom;
 use token::{Token,Opcode};
+use tokenization_error::TokenizationError;
 use std::num::{ParseIntError};
 use std::str;
 
@@ -59,9 +60,12 @@ named!(tokens<&[u8], Vec<Token>>,
     ws!(many0!(single_token))
 );
 
-pub fn parse() {
-    let a = left_paren(&b"("[..]);
-    println!("{}", left_paren(&b"("[..]).to_result().expect("failed to parse"));
+pub fn parse(bytes: &[u8]) -> Result<Vec<Token>, TokenizationError> {
+    let parse_result = tokens(bytes).to_result();
+    match parse_result {
+        Ok(token_vec) => Ok(token_vec),
+        Err(_) => Err(TokenizationError {})
+    }
 }
 
 #[test]
