@@ -1,9 +1,11 @@
 #[macro_use]
 extern crate nom;
 
+mod interpreter;
+mod parser;
+mod runtime_error;
 mod token;
 mod tokenization_error;
-mod parser;
 
 fn main() {
     parser::parse(&b"( + 3 4)"[..]);
