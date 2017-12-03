@@ -55,9 +55,43 @@ named!(single_token<&[u8], Token>,
     )
 );
 
+named!(tokens<&[u8], Vec<Token>>,
+    ws!(many0!(single_token))
+);
+
 pub fn parse() {
     let a = left_paren(&b"("[..]);
     println!("{}", left_paren(&b"("[..]).to_result().expect("failed to parse"));
+}
+
+#[test]
+fn test_several_tokens() {
+    let input = "(+ 3 4)".as_bytes();
+    let expected = vec![
+        Token::LeftParen,
+        Token::Operator(Opcode::Add),
+        Token::Operand(3),
+        Token::Operand(4),
+        Token::RightParen
+    ];
+
+    let actual = tokens(&input).to_result().expect("failed to parse valid string of several tokens");
+    assert!(actual == expected, "failed to parse '(+ 3 4)'");
+}
+
+#[test]
+fn test_several_tokens_with_long_numeric_token() {
+    let input = "(+ 3 40424)".as_bytes();
+    let expected = vec![
+        Token::LeftParen,
+        Token::Operator(Opcode::Add),
+        Token::Operand(3),
+        Token::Operand(40_424),
+        Token::RightParen
+    ];
+
+    let actual = tokens(&input).to_result().expect("failed to parse valid string of several tokens");
+    assert!(actual == expected, "failed to parse '(+ 3 4)'");
 }
 
 #[test]
