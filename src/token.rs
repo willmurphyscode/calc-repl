@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Copy, Clone)]
 pub enum Token {
     LeftParen,
     RightParen,

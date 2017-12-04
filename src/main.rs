@@ -8,7 +8,9 @@ mod token;
 mod tokenization_error;
 
 fn main() {
-    parser::parse(&b"( + 3 4)"[..]);
+    let tokens = parser::parse(&b"( + 3 4)"[..]).expect("failed to parse valid input");
+    let result = interpreter::eval(tokens);
+    println!("{:?}", result);
     let a = token::Token::Operand(32);
     println!("{}", a);
     println!("Hello, world!");
