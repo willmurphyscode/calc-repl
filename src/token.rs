@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(PartialEq, Copy, Clone)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub enum Token {
     LeftParen,
     RightParen,
@@ -8,7 +8,7 @@ pub enum Token {
     Operand(isize)
 }
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Opcode {
     Add, Subtract, Multiply, Divide,
 }
