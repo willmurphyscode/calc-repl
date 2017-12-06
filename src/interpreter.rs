@@ -2,6 +2,8 @@ use parser;
 use token::{Token, Opcode};
 use runtime_error::RuntimeError;
 use std::ops::Range;
+use std::collections::HashMap;
+
 
 pub fn eval(tokens: Vec<Token>) -> Result<isize, RuntimeError> {
 
@@ -39,6 +41,10 @@ fn shift<'a>(stack: &mut Vec<Token>, remaining: &'a [Token]) -> &'a [Token] {
     &remaining[1..]
 }
 
+fn add(a: isize, b: isize) -> isize {
+    a + b
+}
+
 fn reduce<'a>(stack: &mut Vec<Token>) {
     // this accepts the stack of tokens
     // that starts and ends with parentheses, and includes only operands
@@ -65,7 +71,9 @@ fn reduce<'a>(stack: &mut Vec<Token>) {
         Token::Operator(opcode) => {
             match opcode {
                 Opcode::Add => reduce_addition(&mut stack_to_resolve),
-                _ => Err(RuntimeError{})
+                Opcode::Subtract => reduce_subtraction(&mut stack_to_resolve),
+                Opcode::Multiply => reduce_multiplication(&mut stack_to_resolve),
+                Opcode::Divide => reduce_division(&mut stack_to_resolve)
             }
         },
         _ => Err(RuntimeError{})
@@ -81,6 +89,29 @@ fn reduce<'a>(stack: &mut Vec<Token>) {
 fn reduce_addition(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
     Ok(stack.iter().fold(Token::Operand(0isize), 
         |sum, value| combine_tokens(sum, value, &|a,b| a + b)
+    )
+    )
+}
+
+fn reduce_subtraction(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
+    let initial_positive = stack.pop().unwrap();
+    Ok(stack.iter().fold(initial_positive, 
+        |sum, value| combine_tokens(sum, value, &|a,b| a - b)
+    )
+    )
+}
+
+fn reduce_multiplication(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
+    Ok(stack.iter().fold(Token::Operand(1isize), 
+        |sum, value| combine_tokens(sum, value, &|a,b| a * b)
+    )
+    )
+}
+
+fn reduce_division(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
+    let initial_numerator = stack.pop().unwrap();
+    Ok(stack.iter().fold(initial_numerator, 
+        |sum, value| combine_tokens(sum, value, &|a,b| a / b)
     )
     )
 }
@@ -135,6 +166,20 @@ fn it_evals_simple_stacks() {
 }
 
 #[test]
+fn it_evals_simple_stacks_with_subtract() {
+    let tokens = vec![
+        Token::LeftParen,
+        Token::Operator(Opcode::Subtract),
+        Token::Operand(2),
+        Token::Operand(3),
+        Token::RightParen
+    ];
+    let expected = -1;
+    let actual = eval(tokens).expect("Failed to eval valid simple addition");
+    assert!(expected == actual, "Eval failed on simple addition");
+}
+
+#[test]
 fn it_handles_nested_addition() {
        let tokens = vec![
         Token::LeftParen,
@@ -151,4 +196,53 @@ fn it_handles_nested_addition() {
     let expected = 8;
     let actual = eval(tokens).expect("Failed to eval nested addition");
     assert!(expected == actual, "Eval incorrect on nested addition");
+}
+
+#[test]
+fn it_handles_nested_addition_with_subrtraction() {
+       let tokens = vec![
+        Token::LeftParen,
+        Token::Operator(Opcode::Add),
+        Token::Operand(2),
+        Token::Operand(3),
+        Token::LeftParen,
+        Token::Operator(Opcode::Subtract),
+        Token::Operand(1),
+        Token::Operand(2),
+        Token::RightParen,
+        Token::RightParen
+    ];
+    let expected = 4;
+    let actual = eval(tokens).expect("Failed to eval nested addition");
+    assert!(expected == actual, "Eval incorrect on nested addition with subraction");
+}
+
+#[test]
+fn it_handles_nested_nonses_with_all_ops() {
+        let tokens = vec![
+        Token::LeftParen,
+        Token::Operator(Opcode::Add),
+        Token::Operand(2),
+        Token::Operand(3),
+        Token::LeftParen,
+            Token::Operator(Opcode::Subtract),
+            Token::Operand(1),
+            Token::Operand(2),
+            Token::RightParen,
+        Token::LeftParen,
+            Token::Operator(Opcode::Multiply),
+            Token::LeftParen,
+                Token::Operator(Opcode::Divide),
+                Token::Operand(4),
+                Token::Operand(2),
+                Token::RightParen,
+            Token::Operand(3),
+            Token::RightParen,
+        Token::RightParen
+    ];
+
+    // (+ 2 3 (- 1 2)(* (/ 4 2) 3)) == 10
+    let expected = 10;
+    let actual = eval(tokens).expect("Failed to eval complex expression");
+    assert!(expected == actual, "failed to get correct result for complex expression");
 }
