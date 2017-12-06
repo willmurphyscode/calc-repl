@@ -21,11 +21,9 @@ pub fn eval(tokens: Vec<Token>) -> Result<isize, RuntimeError> {
     while left_side.len() > 0 {
         left_side = shift(&mut stack, left_side);
         if stack.last() == Some(&Token::RightParen) {
-            println!("Calling reduce with {:?}", stack);
             reduce(&mut stack);
         }
     }
-    println!("After all parsing, stack was {:?}", stack);
     if stack.len() == 1 {
         if let Some(Token::Operand(value)) = stack.pop() {
             return Ok(value);
@@ -64,9 +62,7 @@ fn reduce<'a>(stack: &mut Vec<Token>) {
         }
 
     }
-    println!("Stack to resolve was {:?}", stack_to_resolve);
     let operator = stack_to_resolve.pop().unwrap();
-    println!("Operator was {:?}", operator);
     let result_here : Result<Token, RuntimeError> = match operator {
         Token::Operator(opcode) => {
             match opcode {
@@ -78,7 +74,6 @@ fn reduce<'a>(stack: &mut Vec<Token>) {
         },
         _ => Err(RuntimeError{})
     };
-    println!("LINE 71: {:?}", result_here);
     if let Ok(reduced_token) = result_here {
         stack.push(reduced_token);
     } else {
