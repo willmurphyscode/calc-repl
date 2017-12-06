@@ -132,3 +132,22 @@ fn it_evals_simple_stacks() {
     let actual = eval(tokens).expect("Failed to eval valid simple addition");
     assert!(expected == actual, "Eval failed on simple addition");
 }
+
+#[test]
+fn it_handles_nested_addition() {
+       let tokens = vec![
+        Token::LeftParen,
+        Token::Operator(Opcode::Add),
+        Token::Operand(2),
+        Token::Operand(3),
+        Token::LeftParen,
+        Token::Operator(Opcode::Add),
+        Token::Operand(1),
+        Token::Operand(2),
+        Token::RightParen,
+        Token::RightParen
+    ];
+    let expected = 8;
+    let actual = eval(tokens).expect("Failed to eval nested addition");
+    assert!(expected == actual, "Eval incorrect on nested addition");
+}
