@@ -5,3 +5,4 @@ authors = ["Will Murphy <willmurphyscode@gmail.com>"]
 
 [dependencies]
 nom = "3.2.1"
+termion = "1.5.1"
