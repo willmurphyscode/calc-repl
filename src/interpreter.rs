@@ -80,22 +80,23 @@ fn reduce<'a>(stack: &mut Vec<Token>) {
 
 fn reduce_addition(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
     Ok(stack.iter().fold(Token::Operand(0isize), 
-        |sum, value| add_tokens(sum, value).expect("")
+        |sum, value| combine_tokens(sum, value, &|a,b| a + b)
     )
     )
 }
 
 fn add_tokens(a: Token, b: &Token) -> Result<Token,RuntimeError> {
-    println!("Adding {:?} to {:?}", a, b);
+    let add = |left, right| left + right;
+    Ok(combine_tokens(a,b, &add))
+}
+
+fn combine_tokens(a: Token, b: &Token, operation: &Fn(isize, isize) -> isize) -> Token {
     if let Token::Operand(a_value) = a {
         if let Token::Operand(b_value) = *b {
-            Ok(Token::Operand(a_value + b_value))
-        } else {
-            Err(RuntimeError{})
+            return Token::Operand(operation(a_value, b_value));
         }
-    } else {
-        Err(RuntimeError{})
     }
+    panic!("Attempted to fold non-operand tokens");
 }
 
 #[test]
