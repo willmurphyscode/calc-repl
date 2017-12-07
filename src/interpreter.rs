@@ -1,8 +1,5 @@
-use parser;
 use token::{Token, Opcode};
 use runtime_error::RuntimeError;
-use std::ops::Range;
-use std::collections::HashMap;
 
 
 pub fn eval(tokens: Vec<Token>) -> Result<isize, RuntimeError> {
