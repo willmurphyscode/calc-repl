@@ -1,11 +1,8 @@
 use std::io::{Write, stdout, stdin};
 use std::process;
-use termion::raw::IntoRawMode;
 use termion::input::TermRead;
 use termion::event::Key;
 use termion::clear;
-use termion::cursor;
-use termion::terminal_size;
 
 use interpreter;
 use parser;
@@ -23,8 +20,7 @@ pub fn repl() {
         for c in stdin.keys() {
             match c.unwrap() {
                 Key::Char('\n') => break, // done with this entry
-                Key::Char('q') => process::exit(0), // quit entirely
-                Key::Ctrl('c') => process::exit(0), // quit entirely
+                Key::Char('q') | Key::Ctrl('c') => process::exit(0), // quit entirely
                 Key::Char(c)   => { 
                     current_input.push(c);
                 },
@@ -35,12 +31,12 @@ pub fn repl() {
         if let Ok(tokens) = token_result {
             let eval_result = interpreter::eval(tokens);
             if let Ok(value) = eval_result {
-                writeln!(stdout, "{}", value);
+                writeln!(stdout, "{}", value).unwrap();
             } else {
-                writeln!(stdout, "Runtime error");
+                writeln!(stdout, "Runtime error").unwrap();
             }
         } else {
-            write!(stdout, "{}", "A parse error occurred");
+            write!(stdout, "{}", "A parse error occurred").unwrap();
         }
         stdout.flush().unwrap();
     }

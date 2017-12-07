@@ -26,16 +26,11 @@ impl fmt::Display for Opcode {
 
 impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // Write strictly the first element into the supplied output
-        // stream: `f`. Returns `fmt::Result` which indicates whether the
-        // operation succeeded or failed. Note that `write!` uses syntax which
-        // is very similar to `println!`.
         match *self {
             Token::LeftParen => write!(f, "Token:LeftParen"),
             Token::RightParen => write!(f, "Token:RightParen"),
             Token::Operator(code) => write!(f, "Token:Operator:{}", code),
             Token::Operand(value) => write!(f, "Token:Operand:{}", value),
-            _ => write!(f, "not implemented")
         }
     }
 }

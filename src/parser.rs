@@ -2,7 +2,6 @@
 use nom;
 use token::{Token,Opcode};
 use tokenization_error::TokenizationError;
-use std::num::{ParseIntError};
 use std::str;
 
 //This is a super helpful example

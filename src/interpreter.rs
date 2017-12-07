@@ -15,7 +15,7 @@ pub fn eval(tokens: Vec<Token>) -> Result<isize, RuntimeError> {
     let mut left_side = &tokens[..];
     let mut stack : Vec<Token> = Vec::new();
 
-    while left_side.len() > 0 {
+    while !left_side.is_empty() {
         left_side = shift(&mut stack, left_side);
         if stack.last() == Some(&Token::RightParen) {
             reduce(&mut stack);
@@ -30,14 +30,10 @@ pub fn eval(tokens: Vec<Token>) -> Result<isize, RuntimeError> {
 }
 
 fn shift<'a>(stack: &mut Vec<Token>, remaining: &'a [Token]) -> &'a [Token] {
-    if(remaining.len() > 0) {
+    if remaining.len() > 0 {
         stack.push(remaining[0]);
     }
     &remaining[1..]
-}
-
-fn add(a: isize, b: isize) -> isize {
-    a + b
 }
 
 fn reduce<'a>(stack: &mut Vec<Token>) {
@@ -47,7 +43,7 @@ fn reduce<'a>(stack: &mut Vec<Token>) {
     // TODO get the rightmost set of stuff wrapped by parentheses
     let mut stack_to_resolve = Vec::new();
     loop {
-        let mut current_token = stack.pop();
+        let current_token = stack.pop();
         if let Some(token) = current_token {
             match token {
                 Token::LeftParen => break,
@@ -108,11 +104,6 @@ fn reduce_division(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
     )
 }
 
-fn add_tokens(a: Token, b: &Token) -> Result<Token,RuntimeError> {
-    let add = |left, right| left + right;
-    Ok(combine_tokens(a,b, &add))
-}
-
 fn combine_tokens(a: Token, b: &Token, operation: &Fn(isize, isize) -> isize) -> Token {
     if let Token::Operand(a_value) = a {
         if let Token::Operand(b_value) = *b {
@@ -120,15 +111,6 @@ fn combine_tokens(a: Token, b: &Token, operation: &Fn(isize, isize) -> isize) ->
         }
     }
     panic!("Attempted to fold non-operand tokens");
-}
-
-#[test]
-fn it_adds_tokesn() {
-    let a = Token::Operand(3);
-    let b = Token::Operand(4);
-    let expected = Token::Operand(7);
-    let actual = add_tokens(a, &b).expect("Unexpected addition failure");
-    assert!(expected == actual);
 }
 
 #[test]
