@@ -1,39 +1,47 @@
 use std::io::{Write, stdout, stdin};
+use std::process;
 use termion::raw::IntoRawMode;
 use termion::input::TermRead;
 use termion::event::Key;
 use termion::clear;
 use termion::cursor;
+use termion::terminal_size;
 
 use interpreter;
 use parser;
 
 pub fn repl() {
-    println!("{}", clear::All);
+    let mut stdout = stdout();
 
-    let stdin = stdin();
-    let mut stdout = stdout().into_raw_mode().unwrap();
-    write!(stdout, "{}{}", cursor::Goto(1, 1), clear::CurrentLine).unwrap();
-    print!(">>>");
-    
-    for c in stdin.keys() {
-        // Clear the current line.
+    writeln!(stdout, "{}Welcome to a simple repl. enter q or press Ctrl-C to exit", clear::CurrentLine).unwrap();
+    loop {
+        write!(stdout, ">>> ");
+        stdout.flush().unwrap();
+        let mut current_input = String::new();
+        let stdin = stdin();
 
-        // Print the key we type...
-        match c.unwrap() {
-            // Exit.
-            Key::Char('q') => break,
-            Key::Char(c)   => print!("{}", c),
-            Key::Alt(c)    => print!("Alt-{}", c),
-            Key::Ctrl(c)   => print!("Ctrl-{}", c),
-            Key::Left      => print!("<left>"),
-            Key::Right     => print!("<right>"),
-            Key::Up        => print!("<up>"),
-            Key::Down      => print!("<down>"),
-            _              => print!("Other"),
+        for c in stdin.keys() {
+            match c.unwrap() {
+                Key::Char('\n') => break, // done with this entry
+                Key::Char('q') => process::exit(0), // quit entirely
+                Key::Ctrl('c') => process::exit(0), // quit entirely
+                Key::Char(c)   => { 
+                    current_input.push(c);
+                },
+                _ => {},
+            }
         }
-
-        // Flush again.
+        let token_result = parser::parse(&current_input.into_bytes()[..]);
+        if let Ok(tokens) = token_result {
+            let eval_result = interpreter::eval(tokens);
+            if let Ok(value) = eval_result {
+                writeln!(stdout, "{}", value);
+            } else {
+                writeln!(stdout, "Runtime error");
+            }
+        } else {
+            write!(stdout, "{}", "A parse error occurred");
+        }
         stdout.flush().unwrap();
     }
 }
