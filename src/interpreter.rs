@@ -117,11 +117,21 @@ fn reduce_multiplication(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> 
 }
 
 fn reduce_division(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
-    let initial_numerator = stack.pop().unwrap();
-    Ok(stack.iter().fold(initial_numerator, 
-        |sum, value| combine_tokens(sum, value, &|a,b| a / b)
-    )
-    )
+    let operands = unwrap_operand_tokens(stack);
+    match operands {
+        Ok(mut operand_vec) =>{
+            let initial_numerator_option = operand_vec.pop();
+            if let Some(initial_numerator) = initial_numerator_option {
+                Ok(Token::Operand(
+                    operand_vec
+                        .iter()
+                        .fold(initial_numerator, |numerator, value| numerator / value)))
+            } else {
+                Err(RuntimeError{})
+            }
+        },
+        Err(_) => Err(RuntimeError{})
+    }
 }
 
 fn unwrap_operand_tokens(tokens: &Vec<Token>) -> Result<Vec<isize>, RuntimeError> {
