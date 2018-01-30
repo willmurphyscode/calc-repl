@@ -30,11 +30,13 @@ pub fn eval(tokens: Vec<Token>) -> Result<isize, RuntimeError> {
 }
 
 fn shift<'a>(stack: &mut Vec<Token>, remaining: &'a [Token]) -> &'a [Token] {
-    if remaining.len() > 0 {
+    if !remaining.is_empty() {
         stack.push(remaining[0]);
     }
     &remaining[1..]
 }
+
+
 
 fn reduce<'a>(stack: &mut Vec<Token>) {
     // this accepts the stack of tokens
@@ -75,25 +77,43 @@ fn reduce<'a>(stack: &mut Vec<Token>) {
 }
 
 fn reduce_addition(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
-    Ok(stack.iter().fold(Token::Operand(0isize), 
-        |sum, value| combine_tokens(sum, value, &|a,b| a + b)
-    )
-    )
+    let operands = unwrap_operand_tokens(stack);
+    match operands {
+        Ok(operand_vec) => Ok(Token::Operand(
+                operand_vec
+                    .iter()
+                    .fold(0, |sum, value| sum + value))),
+        Err(_) => Err(RuntimeError{})
+    }
 }
 
 fn reduce_subtraction(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
-    let initial_positive = stack.pop().unwrap();
-    Ok(stack.iter().fold(initial_positive, 
-        |sum, value| combine_tokens(sum, value, &|a,b| a - b)
-    )
-    )
+    let operands = unwrap_operand_tokens(stack);
+    match operands {
+        Ok(mut operand_vec) =>{
+            let initial_positive_option = operand_vec.pop();
+            if let Some(initial_positive) = initial_positive_option {
+                Ok(Token::Operand(
+                    operand_vec
+                        .iter()
+                        .fold(initial_positive, |sum, value| sum - value)))
+            } else {
+                Err(RuntimeError{})
+            }
+        },
+        Err(_) => Err(RuntimeError{})
+    }
 }
 
 fn reduce_multiplication(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
-    Ok(stack.iter().fold(Token::Operand(1isize), 
-        |sum, value| combine_tokens(sum, value, &|a,b| a * b)
-    )
-    )
+    let operands = unwrap_operand_tokens(stack);
+    match operands {
+        Ok(operand_vec) => Ok(Token::Operand(
+                operand_vec
+                    .iter()
+                    .fold(1, |prod, value| prod * value))),
+        Err(_) => Err(RuntimeError{})
+    }
 }
 
 fn reduce_division(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
@@ -102,6 +122,19 @@ fn reduce_division(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
         |sum, value| combine_tokens(sum, value, &|a,b| a / b)
     )
     )
+}
+
+fn unwrap_operand_tokens(tokens: &Vec<Token>) -> Result<Vec<isize>, RuntimeError> {
+    let result : Vec<isize> = tokens.iter().filter_map(|t| match *t {
+        Token::Operand(val) => Some(val),
+        _ => None,
+    })
+    .collect();
+    if result.len() == tokens.len() {
+        Ok(result)
+    } else {
+        Err(RuntimeError{})
+    }
 }
 
 fn combine_tokens(a: Token, b: &Token, operation: &Fn(isize, isize) -> isize) -> Token {
