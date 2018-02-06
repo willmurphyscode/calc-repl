@@ -12,7 +12,7 @@ pub fn repl() {
 
     writeln!(stdout, "{}Welcome to a simple repl. enter q or press Ctrl-C to exit", clear::CurrentLine).unwrap();
     loop {
-        write!(stdout, ">>> ");
+        write!(stdout, ">>> ").expect("could not write to stdout");
         stdout.flush().unwrap();
         let mut current_input = String::new();
         let stdin = stdin();
