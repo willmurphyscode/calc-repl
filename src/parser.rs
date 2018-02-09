@@ -44,6 +44,14 @@ named!(integer_literal<&[u8], Token>,
     map!(nom::digit, parse_string_to_operand)
 );
 
+named!(operand<&[u8], Token>, 
+    alt!(
+        bool_literal_true |
+        bool_literal_false |
+        integer_literal
+    )
+);
+
 fn parse_string_to_operand(slice: &[u8]) -> Token {
     // I believe `unwrap()` is OK because the nom macro digit! shouldn't match anything
     // that doesn't parse as an int.
