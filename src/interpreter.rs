@@ -1,4 +1,4 @@
-use token::{Token, Opcode};
+use token::{Token, Opcode, Type};
 use runtime_error::RuntimeError;
 
 
@@ -136,7 +136,7 @@ fn reduce_division(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
 
 fn unwrap_operand_tokens(tokens: &Vec<Token>) -> Result<Vec<isize>, RuntimeError> {
     let result : Vec<isize> = tokens.iter().filter_map(|t| match *t {
-        Token::Operand(val) => Some(val),
+        Token::Operand(Type::Integer(val)) => Some(val),
         _ => None,
     })
     .collect();
@@ -150,11 +150,11 @@ fn unwrap_operand_tokens(tokens: &Vec<Token>) -> Result<Vec<isize>, RuntimeError
 #[test]
 fn it_adds_arrays() {
     let mut array = vec![
-        Token::Operand(1),
-        Token::Operand(2),
-        Token::Operand(3)
+        Token::Operand(Type::Integer(1)),
+        Token::Operand(Type::Integer(2)),
+        Token::Operand(Type::Integer(3))
     ];
-    let expected = Token::Operand(6);
+    let expected = Token::Operand(Type::Integer(6));
     let actual = reduce_addition(&mut array).expect("Unexpected addition failure");
     assert!(expected == actual);
 }
@@ -164,8 +164,8 @@ fn it_evals_simple_stacks() {
     let tokens = vec![
         Token::LeftParen,
         Token::Operator(Opcode::Add),
-        Token::Operand(2),
-        Token::Operand(3),
+        Token::Operand(Type::Integer(2)),
+        Token::Operand(Type::Integer(3)),
         Token::RightParen
     ];
     let expected = 5;
@@ -178,8 +178,8 @@ fn it_evals_simple_stacks_with_subtract() {
     let tokens = vec![
         Token::LeftParen,
         Token::Operator(Opcode::Subtract),
-        Token::Operand(2),
-        Token::Operand(3),
+        Token::Operand(Type::Integer(2)),
+        Token::Operand(Type::Integer(3)),
         Token::RightParen
     ];
     let expected = -1;
@@ -192,12 +192,12 @@ fn it_handles_nested_addition() {
        let tokens = vec![
         Token::LeftParen,
         Token::Operator(Opcode::Add),
-        Token::Operand(2),
-        Token::Operand(3),
+        Token::Operand(Type::Integer(2)),
+        Token::Operand(Type::Integer(3)),
         Token::LeftParen,
         Token::Operator(Opcode::Add),
-        Token::Operand(1),
-        Token::Operand(2),
+        Token::Operand(Type::Integer(1)),
+        Token::Operand(Type::Integer(2)),
         Token::RightParen,
         Token::RightParen
     ];
@@ -211,12 +211,12 @@ fn it_handles_nested_addition_with_subrtraction() {
        let tokens = vec![
         Token::LeftParen,
         Token::Operator(Opcode::Add),
-        Token::Operand(2),
-        Token::Operand(3),
+        Token::Operand(Type::Integer(2)),
+        Token::Operand(Type::Integer(3)),
         Token::LeftParen,
         Token::Operator(Opcode::Subtract),
-        Token::Operand(1),
-        Token::Operand(2),
+        Token::Operand(Type::Integer(1)),
+        Token::Operand(Type::Integer(2)),
         Token::RightParen,
         Token::RightParen
     ];
@@ -230,21 +230,21 @@ fn it_handles_nested_nonses_with_all_ops() {
         let tokens = vec![
         Token::LeftParen,
         Token::Operator(Opcode::Add),
-        Token::Operand(2),
-        Token::Operand(3),
+        Token::Operand(Type::Integer(2)),
+        Token::Operand(Type::Integer(3)),
         Token::LeftParen,
             Token::Operator(Opcode::Subtract),
-            Token::Operand(1),
-            Token::Operand(2),
+            Token::Operand(Type::Integer(1)),
+            Token::Operand(Type::Integer(2)),
             Token::RightParen,
         Token::LeftParen,
             Token::Operator(Opcode::Multiply),
             Token::LeftParen,
                 Token::Operator(Opcode::Divide),
-                Token::Operand(4),
-                Token::Operand(2),
+                Token::Operand(Type::Integer(4)),
+                Token::Operand(Type::Integer(2)),
                 Token::RightParen,
-            Token::Operand(3),
+            Token::Operand(Type::Integer(3)),
             Token::RightParen,
         Token::RightParen
     ];
