@@ -32,6 +32,18 @@ named!(division_sign<&[u8], Token>,
     do_parse!(tag!("/") >> (Token::Operator(Opcode::Divide)))
 );
 
+named!(and_operator<&[u8], Token>,
+    do_parse!(tag!("and") >> (Token::Operator(Opcode::Add)))
+);
+
+named!(or_operator<&[u8], Token>,
+    do_parse!(tag!("or") >> (Token::Operator(Opcode::Or)))
+);
+
+named!(bool_operator<&[u8], Token>,
+    alt!(and_operator | or_operator)
+);
+
 named!(bool_literal_true<&[u8], Token>,
     do_parse!(alt!(tag!("#t") | tag!("true")) >> (Token::Operand(Type::Bool(true))))
 );
@@ -67,6 +79,7 @@ named!(single_token<&[u8], Token>,
         subtraction_sign |
         multiplication_sign |
         division_sign |
+        bool_operator |
         operand
     )
 );
