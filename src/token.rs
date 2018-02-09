@@ -5,12 +5,17 @@ pub enum Token {
     LeftParen,
     RightParen,
     Operator(Opcode),
-    Operand(isize)
+    Operand(Type),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Opcode {
     Add, Subtract, Multiply, Divide,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Type {
+    Bool(bool), Integer(isize)
 }
 
 impl fmt::Display for Opcode {
@@ -30,7 +35,16 @@ impl fmt::Display for Token {
             Token::LeftParen => write!(f, "Token:LeftParen"),
             Token::RightParen => write!(f, "Token:RightParen"),
             Token::Operator(code) => write!(f, "Token:Operator:{}", code),
-            Token::Operand(value) => write!(f, "Token:Operand:{}", value),
+            Token::Operand(operand) => write!(f, "Token:Operand:{}", operand),
+        }
+    }
+}
+
+impl fmt::Display for Type {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            Type::Bool(b) => write!(f, "Bool:{}",b),
+            Type::Integer(int) => write!(f, "Integer:{}",int),
         }
     }
 }

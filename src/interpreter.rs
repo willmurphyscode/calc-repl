@@ -1,8 +1,8 @@
-use token::{Token, Opcode};
+use token::{Token, Opcode, Type};
 use runtime_error::RuntimeError;
 
 
-pub fn eval(tokens: Vec<Token>) -> Result<isize, RuntimeError> {
+pub fn eval(tokens: Vec<Token>) -> Result<Type, RuntimeError> {
 
     // shift reduce parsing
     // two operations
@@ -79,10 +79,10 @@ fn reduce<'a>(stack: &mut Vec<Token>) {
 fn reduce_addition(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
     let operands = unwrap_operand_tokens(stack);
     match operands {
-        Ok(operand_vec) => Ok(Token::Operand(
+        Ok(operand_vec) => Ok(Token::Operand(Type::Integer(
                 operand_vec
                     .iter()
-                    .fold(0, |sum, value| sum + value))),
+                    .fold(0, |sum, value| sum + value)))),
         Err(_) => Err(RuntimeError{})
     }
 }
@@ -93,10 +93,10 @@ fn reduce_subtraction(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
         Ok(mut operand_vec) =>{
             let initial_positive_option = operand_vec.pop();
             if let Some(initial_positive) = initial_positive_option {
-                Ok(Token::Operand(
+                Ok(Token::Operand(Type::Integer(
                     operand_vec
                         .iter()
-                        .fold(initial_positive, |sum, value| sum - value)))
+                        .fold(initial_positive, |sum, value| sum - value))))
             } else {
                 Err(RuntimeError{})
             }
@@ -108,10 +108,10 @@ fn reduce_subtraction(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
 fn reduce_multiplication(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
     let operands = unwrap_operand_tokens(stack);
     match operands {
-        Ok(operand_vec) => Ok(Token::Operand(
+        Ok(operand_vec) => Ok(Token::Operand(Type::Integer(
                 operand_vec
                     .iter()
-                    .fold(1, |prod, value| prod * value))),
+                    .fold(1, |prod, value| prod * value)))),
         Err(_) => Err(RuntimeError{})
     }
 }
@@ -122,10 +122,10 @@ fn reduce_division(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
         Ok(mut operand_vec) =>{
             let initial_numerator_option = operand_vec.pop();
             if let Some(initial_numerator) = initial_numerator_option {
-                Ok(Token::Operand(
+                Ok(Token::Operand(Type::Integer(
                     operand_vec
                         .iter()
-                        .fold(initial_numerator, |numerator, value| numerator / value)))
+                        .fold(initial_numerator, |numerator, value| numerator / value))))
             } else {
                 Err(RuntimeError{})
             }
@@ -136,7 +136,7 @@ fn reduce_division(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
 
 fn unwrap_operand_tokens(tokens: &Vec<Token>) -> Result<Vec<isize>, RuntimeError> {
     let result : Vec<isize> = tokens.iter().filter_map(|t| match *t {
-        Token::Operand(val) => Some(val),
+        Token::Operand(Type::Integer(val)) => Some(val),
         _ => None,
     })
     .collect();
@@ -150,11 +150,11 @@ fn unwrap_operand_tokens(tokens: &Vec<Token>) -> Result<Vec<isize>, RuntimeError
 #[test]
 fn it_adds_arrays() {
     let mut array = vec![
-        Token::Operand(1),
-        Token::Operand(2),
-        Token::Operand(3)
+        Token::Operand(Type::Integer(1)),
+        Token::Operand(Type::Integer(2)),
+        Token::Operand(Type::Integer(3))
     ];
-    let expected = Token::Operand(6);
+    let expected = Token::Operand(Type::Integer(6));
     let actual = reduce_addition(&mut array).expect("Unexpected addition failure");
     assert!(expected == actual);
 }
@@ -164,11 +164,11 @@ fn it_evals_simple_stacks() {
     let tokens = vec![
         Token::LeftParen,
         Token::Operator(Opcode::Add),
-        Token::Operand(2),
-        Token::Operand(3),
+        Token::Operand(Type::Integer(2)),
+        Token::Operand(Type::Integer(3)),
         Token::RightParen
     ];
-    let expected = 5;
+    let expected = Type::Integer(5);
     let actual = eval(tokens).expect("Failed to eval valid simple addition");
     assert!(expected == actual, "Eval failed on simple addition");
 }
@@ -178,11 +178,11 @@ fn it_evals_simple_stacks_with_subtract() {
     let tokens = vec![
         Token::LeftParen,
         Token::Operator(Opcode::Subtract),
-        Token::Operand(2),
-        Token::Operand(3),
+        Token::Operand(Type::Integer(2)),
+        Token::Operand(Type::Integer(3)),
         Token::RightParen
     ];
-    let expected = -1;
+    let expected = Type::Integer(-1);
     let actual = eval(tokens).expect("Failed to eval valid simple addition");
     assert!(expected == actual, "Eval failed on simple addition");
 }
@@ -192,16 +192,16 @@ fn it_handles_nested_addition() {
        let tokens = vec![
         Token::LeftParen,
         Token::Operator(Opcode::Add),
-        Token::Operand(2),
-        Token::Operand(3),
+        Token::Operand(Type::Integer(2)),
+        Token::Operand(Type::Integer(3)),
         Token::LeftParen,
         Token::Operator(Opcode::Add),
-        Token::Operand(1),
-        Token::Operand(2),
+        Token::Operand(Type::Integer(1)),
+        Token::Operand(Type::Integer(2)),
         Token::RightParen,
         Token::RightParen
     ];
-    let expected = 8;
+    let expected = Type::Integer(8);
     let actual = eval(tokens).expect("Failed to eval nested addition");
     assert!(expected == actual, "Eval incorrect on nested addition");
 }
@@ -211,16 +211,16 @@ fn it_handles_nested_addition_with_subrtraction() {
        let tokens = vec![
         Token::LeftParen,
         Token::Operator(Opcode::Add),
-        Token::Operand(2),
-        Token::Operand(3),
+        Token::Operand(Type::Integer(2)),
+        Token::Operand(Type::Integer(3)),
         Token::LeftParen,
         Token::Operator(Opcode::Subtract),
-        Token::Operand(1),
-        Token::Operand(2),
+        Token::Operand(Type::Integer(1)),
+        Token::Operand(Type::Integer(2)),
         Token::RightParen,
         Token::RightParen
     ];
-    let expected = 4;
+    let expected = Type::Integer(4);
     let actual = eval(tokens).expect("Failed to eval nested addition");
     assert!(expected == actual, "Eval incorrect on nested addition with subraction");
 }
@@ -230,27 +230,27 @@ fn it_handles_nested_nonses_with_all_ops() {
         let tokens = vec![
         Token::LeftParen,
         Token::Operator(Opcode::Add),
-        Token::Operand(2),
-        Token::Operand(3),
+        Token::Operand(Type::Integer(2)),
+        Token::Operand(Type::Integer(3)),
         Token::LeftParen,
             Token::Operator(Opcode::Subtract),
-            Token::Operand(1),
-            Token::Operand(2),
+            Token::Operand(Type::Integer(1)),
+            Token::Operand(Type::Integer(2)),
             Token::RightParen,
         Token::LeftParen,
             Token::Operator(Opcode::Multiply),
             Token::LeftParen,
                 Token::Operator(Opcode::Divide),
-                Token::Operand(4),
-                Token::Operand(2),
+                Token::Operand(Type::Integer(4)),
+                Token::Operand(Type::Integer(2)),
                 Token::RightParen,
-            Token::Operand(3),
+            Token::Operand(Type::Integer(3)),
             Token::RightParen,
         Token::RightParen
     ];
 
     // (+ 2 3 (- 1 2)(* (/ 4 2) 3)) == 10
-    let expected = 10;
+    let expected = Type::Integer(10);
     let actual = eval(tokens).expect("Failed to eval complex expression");
     assert!(expected == actual, "failed to get correct result for complex expression");
 }

@@ -1,6 +1,6 @@
 
 use nom;
-use token::{Token,Opcode};
+use token::{Token,Opcode,Type};
 use tokenization_error::TokenizationError;
 use std::str;
 
@@ -32,15 +32,31 @@ named!(division_sign<&[u8], Token>,
     do_parse!(tag!("/") >> (Token::Operator(Opcode::Divide)))
 );
 
-named!(operand<&[u8], Token>,
+named!(bool_literal_true<&[u8], Token>,
+    do_parse!(alt!(tag!("#t") | tag!("true")) >> (Token::Operand(Type::Bool(true))))
+);
+
+named!(bool_literal_false<&[u8], Token>,
+    do_parse!(alt!(tag!("#f") | tag!("false")) >> (Token::Operand(Type::Bool(false))))
+);
+
+named!(integer_literal<&[u8], Token>,
     map!(nom::digit, parse_string_to_operand)
+);
+
+named!(operand<&[u8], Token>, 
+    alt!(
+        bool_literal_true |
+        bool_literal_false |
+        integer_literal
+    )
 );
 
 fn parse_string_to_operand(slice: &[u8]) -> Token {
     // I believe `unwrap()` is OK because the nom macro digit! shouldn't match anything
     // that doesn't parse as an int.
     let string = str::from_utf8(slice).unwrap();
-    Token::Operand(string.parse::<isize>().unwrap())
+    Token::Operand(Type::Integer(string.parse::<isize>().unwrap()))
 }
 
 named!(single_token<&[u8], Token>,
@@ -73,8 +89,8 @@ fn test_several_tokens() {
     let expected = vec![
         Token::LeftParen,
         Token::Operator(Opcode::Add),
-        Token::Operand(3),
-        Token::Operand(4),
+        Token::Operand(Type::Integer(3)),
+        Token::Operand(Type::Integer(4)),
         Token::RightParen
     ];
 
@@ -88,8 +104,8 @@ fn test_several_tokens_with_long_numeric_token() {
     let expected = vec![
         Token::LeftParen,
         Token::Operator(Opcode::Add),
-        Token::Operand(3),
-        Token::Operand(40_424),
+        Token::Operand(Type::Integer(3)),
+        Token::Operand(Type::Integer(40_424)),
         Token::RightParen
     ];
 
@@ -104,7 +120,7 @@ fn test_single_token() {
 
 #[test]
 fn test_single_numeric_token() {
-    assert!(single_token(&b"4"[..]).to_result().expect("failed to parse token (") == Token::Operand(4isize));
+    assert!(single_token(&b"4"[..]).to_result().expect("failed to parse token (") == Token::Operand(Type::Integer(4isize)));
 }
 
 #[test]
@@ -139,5 +155,5 @@ fn division_sign_parser() {
 
 #[test]
 fn operand_parser() {
-    assert!(operand(&b"123"[..]).to_result().expect("failed to parse numeric operand") == Token::Operand(123isize));
+    assert!(operand(&b"123"[..]).to_result().expect("failed to parse numeric operand") == Token::Operand(Type::Integer(123isize)));
 }
