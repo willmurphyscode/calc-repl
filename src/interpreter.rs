@@ -147,15 +147,6 @@ fn unwrap_operand_tokens(tokens: &Vec<Token>) -> Result<Vec<isize>, RuntimeError
     }
 }
 
-fn combine_tokens(a: Token, b: &Token, operation: &Fn(isize, isize) -> isize) -> Token {
-    if let Token::Operand(a_value) = a {
-        if let Token::Operand(b_value) = *b {
-            return Token::Operand(operation(a_value, b_value));
-        }
-    }
-    panic!("Attempted to fold non-operand tokens");
-}
-
 #[test]
 fn it_adds_arrays() {
     let mut array = vec![
