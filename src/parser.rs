@@ -33,7 +33,7 @@ named!(division_sign<&[u8], Token>,
 );
 
 named!(and_operator<&[u8], Token>,
-    do_parse!(tag!("and") >> (Token::Operator(Opcode::Add)))
+    do_parse!(tag!("and") >> (Token::Operator(Opcode::And)))
 );
 
 named!(or_operator<&[u8], Token>,
@@ -169,4 +169,25 @@ fn division_sign_parser() {
 #[test]
 fn operand_parser() {
     assert!(operand(&b"123"[..]).to_result().expect("failed to parse numeric operand") == Token::Operand(Type::Integer(123isize)));
+}
+
+#[test]
+fn bool_literal_true_test() {
+    assert!(operand(&b"true"[..])
+        .to_result()
+        .expect("failed to parse literal 'true'") == Token::Operand(Type::Bool(true)));
+}
+
+#[test]
+fn bool_literal_false_test() {
+    assert!(operand(&b"false"[..])
+        .to_result()
+        .expect("failed to parse literal 'false'") == Token::Operand(Type::Bool(false)));
+}
+
+#[test]
+fn bool_and_test() {
+    assert!(single_token(&b"and"[..])
+        .to_result()
+        .expect("failed to parse bool op 'and'") == Token::Operator(Opcode::And));
 }

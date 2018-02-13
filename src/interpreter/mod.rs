@@ -1,4 +1,5 @@
 use token::{Token, Opcode, Type};
+use token::Type::*;
 mod bool_reducers;
 use runtime_error::RuntimeError;
 
@@ -256,4 +257,20 @@ fn it_handles_nested_nonses_with_all_ops() {
     let expected = Type::Integer(10);
     let actual = eval(tokens).expect("Failed to eval complex expression");
     assert!(expected == actual, "failed to get correct result for complex expression");
+}
+
+#[test]
+fn it_should_handle_all_bool_tree() {
+    let tokens = vec![
+        Token::LeftParen,
+        Token::Operator(Opcode::And),
+        Token::Operand(Bool(true)),
+        Token::Operand(Bool(true)),
+        Token::Operand(Bool(true)),
+        Token::RightParen
+    ];
+
+    let expected = Type::Bool(true);
+    let actual = eval(tokens).expect("fail to parse simple bool expression");
+    assert!(expected == actual, "failed to eval simple 'and'");
 }
