@@ -40,6 +40,19 @@ named!(or_operator<&[u8], Token>,
     do_parse!(tag!("or") >> (Token::Operator(Opcode::Or)))
 );
 
+named!(gt_operator<&[u8], Token>,
+    do_parse!(tag!(">") >> (Token::Operator(Opcode::Gt)))
+);
+
+named!(lt_operator<&[u8], Token>,
+    do_parse!(tag!("<") >> (Token::Operator(Opcode::Lt)))
+);
+
+named!(comparator<&[u8], Token>,
+    alt!(lt_operator | gt_operator)
+);
+
+
 named!(bool_operator<&[u8], Token>,
     alt!(and_operator | or_operator)
 );
@@ -80,6 +93,7 @@ named!(single_token<&[u8], Token>,
         multiplication_sign |
         division_sign |
         bool_operator |
+        comparator |
         operand
     )
 );
@@ -190,4 +204,19 @@ fn bool_and_test() {
     assert!(single_token(&b"and"[..])
         .to_result()
         .expect("failed to parse bool op 'and'") == Token::Operator(Opcode::And));
+}
+
+#[test]
+fn gt_test() {
+    assert!(single_token(&b">"[..])
+        .to_result()
+        .expect("failed to parse op '>'") == Token::Operator(Opcode::Gt));
+}
+
+
+#[test]
+fn lt_test() {
+    assert!(single_token(&b"<"[..])
+        .to_result()
+        .expect("failed to parse op '<'") == Token::Operator(Opcode::Lt));
 }
