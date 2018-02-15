@@ -1,5 +1,8 @@
 use token::{Token, Opcode, Type};
+use token::Type::*;
 mod bool_reducers;
+mod comparison_reducers;
+mod helpers;
 use runtime_error::RuntimeError;
 
 
@@ -68,6 +71,8 @@ fn reduce<'a>(stack: &mut Vec<Token>) {
                 Opcode::Divide => reduce_division(&mut stack_to_resolve),
                 Opcode::And => bool_reducers::reduce_and(&mut stack_to_resolve),
                 Opcode::Or => bool_reducers::reduce_or(&mut stack_to_resolve),
+                Opcode::Gt => comparison_reducers::reduce_gt(&mut stack_to_resolve),
+                Opcode::Lt => comparison_reducers::reduce_lt(&mut stack_to_resolve),
             }
         },
         _ => Err(RuntimeError{})
@@ -80,7 +85,7 @@ fn reduce<'a>(stack: &mut Vec<Token>) {
 }
 
 fn reduce_addition(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
-    let operands = unwrap_operand_tokens(stack);
+    let operands = helpers::unwrap_integer_tokens(stack);
     match operands {
         Ok(operand_vec) => Ok(Token::Operand(Type::Integer(
                 operand_vec
@@ -91,7 +96,7 @@ fn reduce_addition(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
 }
 
 fn reduce_subtraction(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
-    let operands = unwrap_operand_tokens(stack);
+    let operands = helpers::unwrap_integer_tokens(stack);
     match operands {
         Ok(mut operand_vec) =>{
             let initial_positive_option = operand_vec.pop();
@@ -109,7 +114,7 @@ fn reduce_subtraction(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
 }
 
 fn reduce_multiplication(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
-    let operands = unwrap_operand_tokens(stack);
+    let operands = helpers::unwrap_integer_tokens(stack);
     match operands {
         Ok(operand_vec) => Ok(Token::Operand(Type::Integer(
                 operand_vec
@@ -120,7 +125,7 @@ fn reduce_multiplication(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> 
 }
 
 fn reduce_division(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
-    let operands = unwrap_operand_tokens(stack);
+    let operands = helpers::unwrap_integer_tokens(stack);
     match operands {
         Ok(mut operand_vec) =>{
             let initial_numerator_option = operand_vec.pop();
@@ -137,18 +142,7 @@ fn reduce_division(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
     }
 }
 
-fn unwrap_operand_tokens(tokens: &Vec<Token>) -> Result<Vec<isize>, RuntimeError> {
-    let result : Vec<isize> = tokens.iter().filter_map(|t| match *t {
-        Token::Operand(Type::Integer(val)) => Some(val),
-        _ => None,
-    })
-    .collect();
-    if result.len() == tokens.len() {
-        Ok(result)
-    } else {
-        Err(RuntimeError{})
-    }
-}
+
 
 #[test]
 fn it_adds_arrays() {
@@ -256,4 +250,20 @@ fn it_handles_nested_nonses_with_all_ops() {
     let expected = Type::Integer(10);
     let actual = eval(tokens).expect("Failed to eval complex expression");
     assert!(expected == actual, "failed to get correct result for complex expression");
+}
+
+#[test]
+fn it_should_handle_all_bool_tree() {
+    let tokens = vec![
+        Token::LeftParen,
+        Token::Operator(Opcode::And),
+        Token::Operand(Bool(true)),
+        Token::Operand(Bool(true)),
+        Token::Operand(Bool(true)),
+        Token::RightParen
+    ];
+
+    let expected = Type::Bool(true);
+    let actual = eval(tokens).expect("fail to parse simple bool expression");
+    assert!(expected == actual, "failed to eval simple 'and'");
 }

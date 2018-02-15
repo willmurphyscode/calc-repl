@@ -2,7 +2,7 @@ use token::{Token, Type};
 use runtime_error::RuntimeError;
 
 pub fn reduce_and(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
-    let bool_result = unwrap_bool_token_vec(stack);
+    let bool_result = unwrap_boolean_tokens(stack);
     if let Ok(bool_vec) = bool_result {
         Ok(Token::Operand(Type::Bool(
             bool_vec.iter().all(|b| *b)
@@ -13,7 +13,7 @@ pub fn reduce_and(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
 }
 
 pub fn reduce_or(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
-    let bool_result = unwrap_bool_token_vec(stack);
+    let bool_result = unwrap_boolean_tokens(stack);
     if let Ok(bool_vec) = bool_result {
         Ok(Token::Operand(Type::Bool(
             bool_vec.iter().any(|b| *b)
@@ -23,7 +23,7 @@ pub fn reduce_or(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
     }
 }
 
-fn unwrap_bool_token_vec(tokens: &Vec<Token>) -> Result<Vec<bool>, RuntimeError> {
+fn unwrap_boolean_tokens(tokens: &Vec<Token>) -> Result<Vec<bool>, RuntimeError> {
     let result : Vec<bool> = tokens.iter().filter_map(|t| match *t {
         Token::Operand(Type::Bool(val)) => Some(val),
         _ => None,

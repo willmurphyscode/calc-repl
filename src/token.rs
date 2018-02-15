@@ -10,7 +10,7 @@ pub enum Token {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Opcode {
-    Add, Subtract, Multiply, Divide, And, Or
+    Add, Subtract, Multiply, Divide, And, Or, Gt, Lt
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -27,6 +27,8 @@ impl fmt::Display for Opcode {
             Opcode::Divide => write!(f, "Divide"),
             Opcode::And => write!(f, "And"),
             Opcode::Or => write!(f, "Or"),
+            Opcode::Gt => write!(f, "Greater Than"),
+            Opcode::Lt => write!(f, "Less Than"),
         }
     }
 }
