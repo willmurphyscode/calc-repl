@@ -267,3 +267,28 @@ fn it_should_handle_all_bool_tree() {
     let actual = eval(tokens).expect("fail to parse simple bool expression");
     assert!(expected == actual, "failed to eval simple 'and'");
 }
+
+#[test]
+fn it_should_handle_comparisons() {
+    let tokens = vec![
+        Token::LeftParen,
+        Token::Operator(Opcode::And),
+            Token::LeftParen,
+            Token::Operator(Opcode::Gt),
+            Token::Operand(Type::Integer(5)),
+            Token::Operand(Type::Integer(4)),
+            Token::RightParen,
+            Token::LeftParen,
+            Token::Operator(Opcode::Lt),
+            Token::Operand(Type::Integer(0)),
+            Token::Operand(Type::Integer(4)),
+            Token::RightParen,
+        Token::RightParen
+    ];
+
+    // (and (> 5 4) (< 0 4)) => true
+
+    let expected = Type::Bool(true);
+    let actual = eval(tokens).expect("fail to parse simple bool expression");
+    assert!(expected == actual, "failed to eval complex 'and'");
+}
