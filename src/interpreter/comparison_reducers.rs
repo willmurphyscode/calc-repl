@@ -58,3 +58,5 @@ fn two_is_greater_than_one() {
     let actual = reduce_gt(&mut stack).expect("failed to reduce stack for LT");
     assert!(expected == actual);
 }
+
+// TODO think hard about how stacks get reversed in order

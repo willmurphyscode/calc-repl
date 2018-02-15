@@ -12,3 +12,5 @@ mod tokenization_error;
 fn main() {
     repl::repl();
 }
+
+// TODO write some end to end tests that exercise the parser and interpreter together
