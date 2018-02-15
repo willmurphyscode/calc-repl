@@ -2,6 +2,7 @@ use token::{Token, Opcode, Type};
 use token::Type::*;
 mod bool_reducers;
 mod comparison_reducers;
+mod helpers;
 use runtime_error::RuntimeError;
 
 
@@ -84,7 +85,7 @@ fn reduce<'a>(stack: &mut Vec<Token>) {
 }
 
 fn reduce_addition(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
-    let operands = unwrap_operand_tokens(stack);
+    let operands = helpers::unwrap_integer_tokens(stack);
     match operands {
         Ok(operand_vec) => Ok(Token::Operand(Type::Integer(
                 operand_vec
@@ -95,7 +96,7 @@ fn reduce_addition(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
 }
 
 fn reduce_subtraction(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
-    let operands = unwrap_operand_tokens(stack);
+    let operands = helpers::unwrap_integer_tokens(stack);
     match operands {
         Ok(mut operand_vec) =>{
             let initial_positive_option = operand_vec.pop();
@@ -113,7 +114,7 @@ fn reduce_subtraction(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
 }
 
 fn reduce_multiplication(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
-    let operands = unwrap_operand_tokens(stack);
+    let operands = helpers::unwrap_integer_tokens(stack);
     match operands {
         Ok(operand_vec) => Ok(Token::Operand(Type::Integer(
                 operand_vec
@@ -124,7 +125,7 @@ fn reduce_multiplication(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> 
 }
 
 fn reduce_division(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
-    let operands = unwrap_operand_tokens(stack);
+    let operands = helpers::unwrap_integer_tokens(stack);
     match operands {
         Ok(mut operand_vec) =>{
             let initial_numerator_option = operand_vec.pop();
@@ -141,18 +142,7 @@ fn reduce_division(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
     }
 }
 
-fn unwrap_operand_tokens(tokens: &Vec<Token>) -> Result<Vec<isize>, RuntimeError> {
-    let result : Vec<isize> = tokens.iter().filter_map(|t| match *t {
-        Token::Operand(Type::Integer(val)) => Some(val),
-        _ => None,
-    })
-    .collect();
-    if result.len() == tokens.len() {
-        Ok(result)
-    } else {
-        Err(RuntimeError{})
-    }
-}
+
 
 #[test]
 fn it_adds_arrays() {
