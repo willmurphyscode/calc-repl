@@ -9,7 +9,10 @@ pub fn reduce_gt(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
         if integers.len() >= 2 {
             let mut result = true;
             integers.iter().fold(isize::MAX, |a, b| {
-                result = result && (a > *b);
+                // intentionally reversed operator
+                // other stack operations will cause the operands to reach this 
+                // block in reverse order.
+                result = result && (a < *b);
                 *b
             });
             return Ok(Token::Operand(Type::Bool(
@@ -26,7 +29,10 @@ pub fn reduce_lt(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
         if integers.len() >= 2 {
             let mut result = true;
             integers.iter().fold(isize::MIN, |a, b| {
-                result = result && (a < *b);
+                // intentionally reversed operator
+                // other stack operations will cause the operands to reach this 
+                // block in reverse order.
+                result = result && (a > *b);
                 *b
             });
             return Ok(Token::Operand(Type::Bool(
