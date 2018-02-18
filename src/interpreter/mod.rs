@@ -2,6 +2,7 @@ use token::{Token, Opcode, Type};
 mod bool_reducers;
 mod comparison_reducers;
 mod helpers;
+mod integer_reducers;
 use runtime_error::RuntimeError;
 
 
@@ -64,10 +65,10 @@ fn reduce<'a>(stack: &mut Vec<Token>) {
     let result_here : Result<Token, RuntimeError> = match operator {
         Token::Operator(opcode) => {
             match opcode {
-                Opcode::Add => reduce_addition(&mut stack_to_resolve),
-                Opcode::Subtract => reduce_subtraction(&mut stack_to_resolve),
-                Opcode::Multiply => reduce_multiplication(&mut stack_to_resolve),
-                Opcode::Divide => reduce_division(&mut stack_to_resolve),
+                Opcode::Add => integer_reducers::reduce_addition(&mut stack_to_resolve),
+                Opcode::Subtract => integer_reducers::reduce_subtraction(&mut stack_to_resolve),
+                Opcode::Multiply => integer_reducers::reduce_multiplication(&mut stack_to_resolve),
+                Opcode::Divide => integer_reducers::reduce_division(&mut stack_to_resolve),
                 Opcode::And => bool_reducers::reduce_and(&mut stack_to_resolve),
                 Opcode::Or => bool_reducers::reduce_or(&mut stack_to_resolve),
                 Opcode::Gt => comparison_reducers::reduce_gt(&mut stack_to_resolve),
@@ -83,80 +84,11 @@ fn reduce<'a>(stack: &mut Vec<Token>) {
     }
 }
 
-fn reduce_addition(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
-    let operands = helpers::unwrap_integer_tokens(stack);
-    match operands {
-        Ok(operand_vec) => Ok(Token::Operand(Type::Integer(
-                operand_vec
-                    .iter()
-                    .fold(0, |sum, value| sum + value)))),
-        Err(_) => Err(RuntimeError{})
-    }
-}
-
-fn reduce_subtraction(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
-    let operands = helpers::unwrap_integer_tokens(stack);
-    match operands {
-        Ok(mut operand_vec) =>{
-            let initial_positive_option = operand_vec.pop();
-            if let Some(initial_positive) = initial_positive_option {
-                Ok(Token::Operand(Type::Integer(
-                    operand_vec
-                        .iter()
-                        .fold(initial_positive, |sum, value| sum - value))))
-            } else {
-                Err(RuntimeError{})
-            }
-        },
-        Err(_) => Err(RuntimeError{})
-    }
-}
-
-fn reduce_multiplication(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
-    let operands = helpers::unwrap_integer_tokens(stack);
-    match operands {
-        Ok(operand_vec) => Ok(Token::Operand(Type::Integer(
-                operand_vec
-                    .iter()
-                    .fold(1, |prod, value| prod * value)))),
-        Err(_) => Err(RuntimeError{})
-    }
-}
-
-fn reduce_division(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
-    let operands = helpers::unwrap_integer_tokens(stack);
-    match operands {
-        Ok(mut operand_vec) =>{
-            let initial_numerator_option = operand_vec.pop();
-            if let Some(initial_numerator) = initial_numerator_option {
-                Ok(Token::Operand(Type::Integer(
-                    operand_vec
-                        .iter()
-                        .fold(initial_numerator, |numerator, value| numerator / value))))
-            } else {
-                Err(RuntimeError{})
-            }
-        },
-        Err(_) => Err(RuntimeError{})
-    }
-}
 
 #[cfg(test)]
 mod tests {
     use token::Type::*;
     use super::*;
-
-    #[test]
-    fn it_adds_arrays() {
-        let mut array = vec![
-            Token::Operand(Type::Integer(1)),
-            Token::Operand(Type::Integer(2)),
-            Token::Operand(Type::Integer(3))
-        ];
-        let expected = Token::Operand(Type::Integer(6));
-        let actual = reduce_addition(&mut array).expect("Unexpected addition failure");
-        assert!(expected == actual);
-    }
 
     #[test]
     fn it_evals_simple_stacks() {
