@@ -1,3 +1,5 @@
+#![deny(warnings)]
+
 #[macro_use]
 extern crate nom;
 extern crate termion;
@@ -14,3 +16,15 @@ fn main() {
 }
 
 // TODO write some end to end tests that exercise the parser and interpreter together
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_works() {
+        let input = b"(and (> 5 4) (< 0 4))";
+        let tokens = parser::parse(&input[..]).expect("failed to tokenize boolean expression");
+        let result = interpreter::eval(tokens).expect("failed to eval boolean expression");
+        assert!(result == token::Type::Bool(true));
+    }
+}
