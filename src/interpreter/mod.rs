@@ -145,127 +145,128 @@ fn reduce_division(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
 mod tests {
     use token::Type::*;
     use super::*;
-#[test]
-fn it_adds_arrays() {
-    let mut array = vec![
-        Token::Operand(Type::Integer(1)),
-        Token::Operand(Type::Integer(2)),
-        Token::Operand(Type::Integer(3))
-    ];
-    let expected = Token::Operand(Type::Integer(6));
-    let actual = reduce_addition(&mut array).expect("Unexpected addition failure");
-    assert!(expected == actual);
-}
 
-#[test]
-fn it_evals_simple_stacks() {
-    let tokens = vec![
-        Token::LeftParen,
-        Token::Operator(Opcode::Add),
-        Token::Operand(Type::Integer(2)),
-        Token::Operand(Type::Integer(3)),
-        Token::RightParen
-    ];
-    let expected = Type::Integer(5);
-    let actual = eval(tokens).expect("Failed to eval valid simple addition");
-    assert!(expected == actual, "Eval failed on simple addition");
-}
+    #[test]
+    fn it_adds_arrays() {
+        let mut array = vec![
+            Token::Operand(Type::Integer(1)),
+            Token::Operand(Type::Integer(2)),
+            Token::Operand(Type::Integer(3))
+        ];
+        let expected = Token::Operand(Type::Integer(6));
+        let actual = reduce_addition(&mut array).expect("Unexpected addition failure");
+        assert!(expected == actual);
+    }
 
-#[test]
-fn it_evals_simple_stacks_with_subtract() {
-    let tokens = vec![
-        Token::LeftParen,
-        Token::Operator(Opcode::Subtract),
-        Token::Operand(Type::Integer(2)),
-        Token::Operand(Type::Integer(3)),
-        Token::RightParen
-    ];
-    let expected = Type::Integer(-1);
-    let actual = eval(tokens).expect("Failed to eval valid simple addition");
-    assert!(expected == actual, "Eval failed on simple addition");
-}
-
-#[test]
-fn it_handles_nested_addition() {
-       let tokens = vec![
-        Token::LeftParen,
-        Token::Operator(Opcode::Add),
-        Token::Operand(Type::Integer(2)),
-        Token::Operand(Type::Integer(3)),
-        Token::LeftParen,
-        Token::Operator(Opcode::Add),
-        Token::Operand(Type::Integer(1)),
-        Token::Operand(Type::Integer(2)),
-        Token::RightParen,
-        Token::RightParen
-    ];
-    let expected = Type::Integer(8);
-    let actual = eval(tokens).expect("Failed to eval nested addition");
-    assert!(expected == actual, "Eval incorrect on nested addition");
-}
-
-#[test]
-fn it_handles_nested_addition_with_subrtraction() {
-       let tokens = vec![
-        Token::LeftParen,
-        Token::Operator(Opcode::Add),
-        Token::Operand(Type::Integer(2)),
-        Token::Operand(Type::Integer(3)),
-        Token::LeftParen,
-        Token::Operator(Opcode::Subtract),
-        Token::Operand(Type::Integer(1)),
-        Token::Operand(Type::Integer(2)),
-        Token::RightParen,
-        Token::RightParen
-    ];
-    let expected = Type::Integer(4);
-    let actual = eval(tokens).expect("Failed to eval nested addition");
-    assert!(expected == actual, "Eval incorrect on nested addition with subraction");
-}
-
-#[test]
-fn it_handles_nested_nonses_with_all_ops() {
+    #[test]
+    fn it_evals_simple_stacks() {
         let tokens = vec![
-        Token::LeftParen,
-        Token::Operator(Opcode::Add),
-        Token::Operand(Type::Integer(2)),
-        Token::Operand(Type::Integer(3)),
-        Token::LeftParen,
+            Token::LeftParen,
+            Token::Operator(Opcode::Add),
+            Token::Operand(Type::Integer(2)),
+            Token::Operand(Type::Integer(3)),
+            Token::RightParen
+        ];
+        let expected = Type::Integer(5);
+        let actual = eval(tokens).expect("Failed to eval valid simple addition");
+        assert!(expected == actual, "Eval failed on simple addition");
+    }
+
+    #[test]
+    fn it_evals_simple_stacks_with_subtract() {
+        let tokens = vec![
+            Token::LeftParen,
+            Token::Operator(Opcode::Subtract),
+            Token::Operand(Type::Integer(2)),
+            Token::Operand(Type::Integer(3)),
+            Token::RightParen
+        ];
+        let expected = Type::Integer(-1);
+        let actual = eval(tokens).expect("Failed to eval valid simple addition");
+        assert!(expected == actual, "Eval failed on simple addition");
+    }
+
+    #[test]
+    fn it_handles_nested_addition() {
+        let tokens = vec![
+            Token::LeftParen,
+            Token::Operator(Opcode::Add),
+            Token::Operand(Type::Integer(2)),
+            Token::Operand(Type::Integer(3)),
+            Token::LeftParen,
+            Token::Operator(Opcode::Add),
+            Token::Operand(Type::Integer(1)),
+            Token::Operand(Type::Integer(2)),
+            Token::RightParen,
+            Token::RightParen
+        ];
+        let expected = Type::Integer(8);
+        let actual = eval(tokens).expect("Failed to eval nested addition");
+        assert!(expected == actual, "Eval incorrect on nested addition");
+    }
+
+    #[test]
+    fn it_handles_nested_addition_with_subrtraction() {
+        let tokens = vec![
+            Token::LeftParen,
+            Token::Operator(Opcode::Add),
+            Token::Operand(Type::Integer(2)),
+            Token::Operand(Type::Integer(3)),
+            Token::LeftParen,
             Token::Operator(Opcode::Subtract),
             Token::Operand(Type::Integer(1)),
             Token::Operand(Type::Integer(2)),
             Token::RightParen,
-        Token::LeftParen,
-            Token::Operator(Opcode::Multiply),
+            Token::RightParen
+        ];
+        let expected = Type::Integer(4);
+        let actual = eval(tokens).expect("Failed to eval nested addition");
+        assert!(expected == actual, "Eval incorrect on nested addition with subraction");
+    }
+
+    #[test]
+    fn it_handles_nested_nonses_with_all_ops() {
+            let tokens = vec![
             Token::LeftParen,
-                Token::Operator(Opcode::Divide),
-                Token::Operand(Type::Integer(4)),
+            Token::Operator(Opcode::Add),
+            Token::Operand(Type::Integer(2)),
+            Token::Operand(Type::Integer(3)),
+            Token::LeftParen,
+                Token::Operator(Opcode::Subtract),
+                Token::Operand(Type::Integer(1)),
                 Token::Operand(Type::Integer(2)),
                 Token::RightParen,
-            Token::Operand(Type::Integer(3)),
-            Token::RightParen,
-        Token::RightParen
-    ];
+            Token::LeftParen,
+                Token::Operator(Opcode::Multiply),
+                Token::LeftParen,
+                    Token::Operator(Opcode::Divide),
+                    Token::Operand(Type::Integer(4)),
+                    Token::Operand(Type::Integer(2)),
+                    Token::RightParen,
+                Token::Operand(Type::Integer(3)),
+                Token::RightParen,
+            Token::RightParen
+        ];
 
-    // (+ 2 3 (- 1 2)(* (/ 4 2) 3)) == 10
-    let expected = Type::Integer(10);
-    let actual = eval(tokens).expect("Failed to eval complex expression");
-    assert!(expected == actual, "failed to get correct result for complex expression");
-}
+        // (+ 2 3 (- 1 2)(* (/ 4 2) 3)) == 10
+        let expected = Type::Integer(10);
+        let actual = eval(tokens).expect("Failed to eval complex expression");
+        assert!(expected == actual, "failed to get correct result for complex expression");
+    }
 
-#[test]
-fn it_should_handle_all_bool_tree() {
-    let tokens = vec![
-        Token::LeftParen,
-        Token::Operator(Opcode::And),
-        Token::Operand(Bool(true)),
-        Token::Operand(Bool(true)),
-        Token::Operand(Bool(true)),
-        Token::RightParen
-    ];
+    #[test]
+    fn it_should_handle_all_bool_tree() {
+        let tokens = vec![
+            Token::LeftParen,
+            Token::Operator(Opcode::And),
+            Token::Operand(Bool(true)),
+            Token::Operand(Bool(true)),
+            Token::Operand(Bool(true)),
+            Token::RightParen
+        ];
 
-    let expected = Type::Bool(true);
-    let actual = eval(tokens).expect("fail to parse simple bool expression");
-    assert!(expected == actual, "failed to eval simple 'and'");
-}
+        let expected = Type::Bool(true);
+        let actual = eval(tokens).expect("fail to parse simple bool expression");
+        assert!(expected == actual, "failed to eval simple 'and'");
+    }
 }
