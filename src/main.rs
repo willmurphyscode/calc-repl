@@ -21,7 +21,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn it_works() {
+    fn it_can_reduce_comparisons() {
         let input = b"(and (> 5 4) (< 0 4))";
         let tokens = parser::parse(&input[..]).expect("failed to tokenize boolean expression");
         let result = interpreter::eval(tokens).expect("failed to eval boolean expression");
