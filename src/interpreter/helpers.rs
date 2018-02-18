@@ -1,4 +1,4 @@
-use token::{Token, Opcode, Type};
+use token::{Token, Type};
 use runtime_error::RuntimeError;
 
 pub fn unwrap_integer_tokens(tokens: &Vec<Token>) -> Result<Vec<isize>, RuntimeError> {

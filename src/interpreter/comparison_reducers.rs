@@ -1,5 +1,5 @@
 use std::isize;
-use token::{Token, Opcode, Type};
+use token::{Token, Type};
 use runtime_error::RuntimeError;
 use super::helpers;
 
