@@ -1,5 +1,4 @@
 use token::{Token, Opcode, Type};
-use token::Type::*;
 mod bool_reducers;
 mod comparison_reducers;
 mod helpers;
@@ -142,8 +141,10 @@ fn reduce_division(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
     }
 }
 
-
-
+#[cfg(test)]
+mod tests {
+    use token::Type::*;
+    use super::*;
 #[test]
 fn it_adds_arrays() {
     let mut array = vec![
@@ -266,4 +267,5 @@ fn it_should_handle_all_bool_tree() {
     let expected = Type::Bool(true);
     let actual = eval(tokens).expect("fail to parse simple bool expression");
     assert!(expected == actual, "failed to eval simple 'and'");
+}
 }
