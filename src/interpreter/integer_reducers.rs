@@ -75,4 +75,40 @@ mod tests {
         let actual = reduce_addition(&mut array).expect("Unexpected addition failure");
         assert!(expected == actual);
     }
+
+    #[test]
+    fn it_subtracts() {
+        // getting these from the stack would have reversed them
+        let mut array = vec![
+            Token::Operand(Type::Integer(1)),
+            Token::Operand(Type::Integer(2))
+        ].into_iter().rev().collect();
+        let expected = Token::Operand(Type::Integer(-1));
+        let actual = reduce_subtraction(&mut array).expect("Unexpected addition failure");
+        assert!(expected == actual);
+    }
+
+    #[test]
+    fn it_multiplies() {
+        let mut array = vec![
+            Token::Operand(Type::Integer(1)),
+            Token::Operand(Type::Integer(2)),
+            Token::Operand(Type::Integer(3))
+        ];
+        let expected = Token::Operand(Type::Integer(6));
+        let actual = reduce_multiplication(&mut array).expect("Unexpected addition failure");
+        assert!(expected == actual);
+    }
+
+    #[test]
+    fn it_divides() {
+        let mut array = vec![
+            Token::Operand(Type::Integer(16)),
+            Token::Operand(Type::Integer(2)),
+            Token::Operand(Type::Integer(2))
+        ].into_iter().rev().collect();
+        let expected = Token::Operand(Type::Integer(4));
+        let actual = reduce_division(&mut array).expect("Unexpected addition failure");
+        assert!(expected == actual);
+    }
 }
