@@ -75,4 +75,15 @@ mod tests {
         let actual = reduce_addition(&mut array).expect("Unexpected addition failure");
         assert!(expected == actual);
     }
+
+    #[test]
+    fn it_subtracts() {
+        let mut array = vec![
+            Token::Operand(Type::Integer(1)),
+            Token::Operand(Type::Integer(2))
+        ];
+        let expected = Token::Operand(Type::Integer(1));
+        let actual = reduce_subtraction(&mut array).expect("Unexpected addition failure");
+        assert!(expected == actual);
+    }
 }
