@@ -22,15 +22,17 @@ mod tests {
 
     macro_rules! test_case {
         ($input:expr, $expected:expr, $msg:expr) => {
-            let tokens = parser::parse(&$input[..]).expect($msg);
-            let result = interpreter::eval(tokens).expect($msg);
-            assert!(result == $expected, $msg);
+            let tokens = parser::parse(&$input[..])
+                .expect(&format!("{} at parsing", $msg));
+            let result = interpreter::eval(tokens)
+                .expect(&format!("{} at eval", $msg));
+            assert!(result == $expected, &$msg);
         }
     }
 
     #[test]
     fn it_can_reduce_comparisons() {
-        test_case!(b"(and (> 5 4) (< 0 4))",
+    test_case!(b"(and (> 5 4) (< 0 4))",
                 Type::Bool(true), "failed to eval and with comparisons");
     }
 
