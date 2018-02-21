@@ -20,30 +20,32 @@ mod tests {
     use super::*;
     use token::Type;
 
+    macro_rules! test_case {
+        ($input:expr, $expected:expr, $msg:expr) => {
+            let tokens = parser::parse(&$input[..])
+                .expect(&format!("{} at parsing", $msg));
+            let result = interpreter::eval(tokens)
+                .expect(&format!("{} at eval", $msg));
+            assert!(result == $expected, &$msg);
+        }
+    }
+
     #[test]
     fn it_can_reduce_comparisons() {
-        let input = b"(and (> 5 4) (< 0 4))";
-        let tokens = parser::parse(&input[..]).expect("failed to tokenize boolean expression");
-        let result = interpreter::eval(tokens).expect("failed to eval boolean expression");
-        assert!(result == token::Type::Bool(true));
+        test_case!(b"(and (> 5 4) (< 0 4))",
+                   Type::Bool(true),
+                   "failed to eval and with comparisons");
     }
 
     #[test]
     fn it_can_reduce_comparisons_with_other_ops() {
-        let input = b"(or (> 5 4 (- 2 1)) (< 7 4))";
-        let tokens = parser::parse(&input[..]).expect("failed to tokenize boolean expression");
-        let result = interpreter::eval(tokens).expect("failed to eval boolean expression");
-        assert!(result == token::Type::Bool(true));
+        test_case!(b"(or (> 5 4 (- 2 1)) (< 7 4))",
+                   Type::Bool(true),
+                   "failed to eval with bool and comparison");
     }
 
     #[test]
     fn it_subtracts_correctly() {
-        let input = b"(- 1 2 2 2)";
-        let tokens = parser::parse(&input[..])
-            .expect("failed to parse subtraction string");
-        let actual = interpreter::eval(tokens)
-            .expect("failed to eval simple subtraction");
-        let expected = Type::Integer(-5);
-        assert!(expected == actual, "expect {} but got {}", expected, actual);
+        test_case!(b"(- 1 2 2 2)", Type::Integer(-5), "failed to subtract correctly");
     }
 }
