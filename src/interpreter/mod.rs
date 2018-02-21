@@ -250,7 +250,7 @@ mod tests {
         assert!(expected == actual, "failed to eval complex 'and'");
     }
 
-        #[test]
+    #[test]
     fn it_should_handle_one_comparison() {
         let tokens = vec![
             Token::LeftParen,
