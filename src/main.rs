@@ -15,7 +15,6 @@ fn main() {
     repl::repl();
 }
 
-// TODO write some end to end tests that exercise the parser and interpreter together
 #[cfg(test)]
 mod tests {
     use super::*;
