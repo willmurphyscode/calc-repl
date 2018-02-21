@@ -32,8 +32,9 @@ mod tests {
     #[test]
     fn it_subtracts_correctly() {
         let input = b"(- 1 2 2 2)";
-        let mut tokens = parser::parse(&input);
-        let actual = interpreter::eval(&mut tokens)
+        let tokens = parser::parse(&input[..])
+            .expect("failed to parse subtraction string");
+        let actual = interpreter::eval(tokens)
             .expect("failed to eval simple subtraction");
         let expected = Type::Integer(-5);
         assert!(expected == actual, "expect {} but got {}", expected, actual);
