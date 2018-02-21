@@ -32,15 +32,16 @@ mod tests {
 
     #[test]
     fn it_can_reduce_comparisons() {
-    test_case!(b"(and (> 5 4) (< 0 4))",
-                Type::Bool(true), "failed to eval and with comparisons");
+        test_case!(b"(and (> 5 4) (< 0 4))",
+                   Type::Bool(true),
+                   "failed to eval and with comparisons");
     }
 
     #[test]
     fn it_can_reduce_comparisons_with_other_ops() {
         test_case!(b"(or (> 5 4 (- 2 1)) (< 7 4))",
-                Type::Bool(true),
-                "failed to eval with bool and comparison");
+                   Type::Bool(true),
+                   "failed to eval with bool and comparison");
     }
 
     #[test]
