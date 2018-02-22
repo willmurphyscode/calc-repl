@@ -2,6 +2,7 @@ use token::{Token, Opcode, Type};
 mod bool_reducers;
 mod comparison_reducers;
 mod helpers;
+mod if_reducer;
 mod integer_reducers;
 use runtime_error::RuntimeError;
 
@@ -73,6 +74,7 @@ fn reduce<'a>(stack: &mut Vec<Token>) {
                 Opcode::Or => bool_reducers::reduce_or(&mut stack_to_resolve),
                 Opcode::Gt => comparison_reducers::reduce_gt(&mut stack_to_resolve),
                 Opcode::Lt => comparison_reducers::reduce_lt(&mut stack_to_resolve),
+                Opcode::If => if_reducer::reduce_if(&mut stack_to_resolve),
             }
         },
         _ => Err(RuntimeError{})
