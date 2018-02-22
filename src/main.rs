@@ -48,4 +48,11 @@ mod tests {
     fn it_subtracts_correctly() {
         test_case!(b"(- 1 2 2 2)", Type::Integer(-5), "failed to subtract correctly");
     }
+
+    #[test]
+    fn it_handle_if_true_branch() {
+        test_case!(b"(if (< 2 3) 4 5)",
+                  Type::Integer(4),
+                  "failed to handle if-else on true branch");
+    }
 }
