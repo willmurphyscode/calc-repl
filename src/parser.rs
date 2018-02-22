@@ -1,5 +1,6 @@
 
 use nom;
+use nom::IResult;
 use token::{Token,Opcode,Type};
 use tokenization_error::TokenizationError;
 use std::str;
@@ -103,10 +104,15 @@ named!(tokens<&[u8], Vec<Token>>,
 );
 
 pub fn parse(bytes: &[u8]) -> Result<Vec<Token>, TokenizationError> {
-    let parse_result = tokens(bytes).to_result();
+    let parse_result = tokens(bytes);
     match parse_result {
-        Ok(token_vec) => Ok(token_vec),
-        Err(_) => Err(TokenizationError {})
+        IResult::Done(rest, result) => if rest.is_empty() {
+            Ok(result)
+        } else {
+            Err(TokenizationError{})
+        },
+        IResult::Error(_) => Err(TokenizationError {}),
+        IResult::Incomplete(_) => Err(TokenizationError{}),
     }
 }
 
