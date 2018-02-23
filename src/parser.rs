@@ -49,6 +49,10 @@ named!(lt_operator<&[u8], Token>,
     do_parse!(tag!("<") >> (Token::Operator(Opcode::Lt)))
 );
 
+named!(if_operator<&[u8], Token>,
+    do_parse!(tag!("if") >> (Token::Operator(Opcode::If)))
+);
+
 named!(comparator<&[u8], Token>,
     alt!(lt_operator | gt_operator)
 );
@@ -95,6 +99,7 @@ named!(single_token<&[u8], Token>,
         division_sign |
         bool_operator |
         comparator |
+        if_operator |
         operand
     )
 );
@@ -225,4 +230,11 @@ fn lt_test() {
     assert!(single_token(&b"<"[..])
         .to_result()
         .expect("failed to parse op '<'") == Token::Operator(Opcode::Lt));
+}
+
+#[test]
+fn it_can_parse_if() {
+    assert!(single_token(&b"if"[..])
+        .to_result()
+        .expect("failed to parse if") == Token::Operator(Opcode::If));
 }
