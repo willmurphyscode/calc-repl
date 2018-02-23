@@ -82,6 +82,7 @@ fn reduce<'a>(stack: &mut Vec<Token>) {
     if let Ok(reduced_token) = result_here {
         stack.push(reduced_token);
     } else {
+        // TODO: don't panic, fail gracefully and report what went wrong
         panic!("Syntax error parsing at {:?}", stack_to_resolve);
     }
 }

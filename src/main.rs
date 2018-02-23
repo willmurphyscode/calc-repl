@@ -55,4 +55,18 @@ mod tests {
                   Type::Integer(4),
                   "failed to handle if-else on true branch");
     }
+
+    #[test]
+    fn it_handle_if_false_branch() {
+        test_case!(b"(if (> 2 3) 4 5)",
+                  Type::Integer(5),
+                  "failed to handle if-else on true branch");
+    }
+
+    #[test]
+    fn it_handle_if_nested_bool_expression() {
+        test_case!(b"(and (< 4 (if (> 2 3) 4 5)) (> (+ 1 2) (- 1 2))",
+                  Type::Bool(true),
+                  "failed to handle a nested if and expression");
+    }
 }
