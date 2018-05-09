@@ -53,10 +53,13 @@ named!(if_operator<&[u8], Token>,
     do_parse!(tag!("if") >> (Token::Operator(Opcode::If)))
 );
 
+named!(min_operator<&[u8], Token>,
+    do_parse!(tag!("min") >> (Token::Operator(Opcode::Min)))
+);
+
 named!(comparator<&[u8], Token>,
     alt!(lt_operator | gt_operator)
 );
-
 
 named!(bool_operator<&[u8], Token>,
     alt!(and_operator | or_operator)
@@ -99,6 +102,7 @@ named!(single_token<&[u8], Token>,
         division_sign |
         bool_operator |
         comparator |
+        min_operator |
         if_operator |
         operand
     )

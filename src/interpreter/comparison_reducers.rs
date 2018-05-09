@@ -41,6 +41,16 @@ pub fn reduce_lt(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
     Err(RuntimeError{})
 }
 
+pub fn reduce_min(stack: &mut Vec<Token>) -> Result<Token, RuntimeError> {
+    let integers_vec = helpers::unwrap_integer_tokens(stack);
+    if let Ok(integers) = integers_vec {
+        if let Some(lowest) = integers.iter().min() {
+            return Ok(Token::Operand(Type::Integer(*lowest)));
+        }
+    }
+    Err(RuntimeError{})
+}
+
 #[test]
 fn one_is_less_than_two() {
     let mut stack = vec![
@@ -61,6 +71,19 @@ fn two_is_greater_than_one() {
     let expected = Token::Operand(Type::Bool(true));
     let actual = reduce_gt(&mut stack).expect("failed to reduce stack for LT");
     assert!(expected == actual);
+}
+
+#[test]
+fn test_minimum() {
+    let mut stack = vec![
+        Token::Operand(Type::Integer(2)),
+        Token::Operand(Type::Integer(1)),
+        Token::Operand(Type::Integer(5)),
+        Token::Operand(Type::Integer(3)),
+    ];
+    let expected = Token::Operand(Type::Integer(1));
+    let actual = reduce_min(&mut stack).expect("failed to reduce stack with min");
+    assert!(expected == actual);    
 }
 
 // TODO think hard about how stacks get reversed in order
